@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import api from '../services/api';
+import MainLayout from '../components/MainLayout';
 import { Table, Button, message, Input, Form, Modal, Select, Upload } from 'antd';
-import { UploadOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { UploadOutlined } from '@ant-design/icons';
 
 const { Option } = Select;
 
@@ -22,18 +22,16 @@ const Products = () => {
         vendor: ''
     });
     const [selectedFile, setSelectedFile] = useState(null);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        Promise.all([fetchProducts(), fetchCategories(), fetchVendors()])
-            .then(() => setLoading(false))
-            .catch((error) => console.error("Error loading data:", error));
+        fetchProducts();
+        fetchCategories();
+        fetchVendors();
     }, []);
 
     const fetchProducts = async () => {
         try {
             const response = await api.get('/product/all');
-            console.log("Fetched Products:", response.data.products);
             setProducts(response.data.products);
         } catch (error) {
             console.error('Error fetching products:', error);
@@ -44,7 +42,6 @@ const Products = () => {
     const fetchCategories = async () => {
         try {
             const response = await api.get('/category/all');
-            console.log("Fetched Categories:", response.data.categories);
             setCategories(response.data.categories);
         } catch (error) {
             console.error('Error fetching categories:', error);
@@ -55,7 +52,6 @@ const Products = () => {
     const fetchVendors = async () => {
         try {
             const response = await api.get('/vendor/all');
-            console.log("Fetched Vendors:", response.data.vendors);
             setVendors(response.data.vendors);
         } catch (error) {
             console.error('Error fetching vendors:', error);
@@ -150,9 +146,9 @@ const Products = () => {
     };
 
     const columns = [
-        { title: 'Name', dataIndex: 'name', key: 'name' },
-        { title: 'Description', dataIndex: 'description', key: 'description' },
-        { title: 'Price', dataIndex: 'price', key: 'price' },
+        { title: 'Name', dataIndex: 'name', key: 'name', width: 150 },
+        { title: 'Description', dataIndex: 'description', key: 'description', width: 200 },
+        { title: 'Price', dataIndex: 'price', key: 'price', width: 100 },
         {
             title: 'Categories',
             render: (text, record) => (
@@ -165,6 +161,7 @@ const Products = () => {
                         : 'No Category'}
                 </span>
             ),
+            width: 150,
         },
         {
             title: 'Vendor',
@@ -172,12 +169,14 @@ const Products = () => {
                 const vendor = vendors.find(v => v._id === record.vendor);
                 return vendor ? vendor.name : 'Not Found';
             },
+            width: 150,
         },
         {
             title: 'Product URL',
             render: (text, record) => (
                 <span>{record.productUrl ? <a href={record.productUrl} target="_blank" rel="noopener noreferrer">{record.productUrl}</a> : 'No URL'}</span>
             ),
+            width: 200,
         },
         {
             title: 'Image',
@@ -188,6 +187,7 @@ const Products = () => {
                     style={{ width: '50px', height: '50px', objectFit: 'cover' }} 
                 />
             ),
+            width: 100,
         },
         {
             title: 'Action',
@@ -201,107 +201,105 @@ const Products = () => {
                     <Button type="link" danger onClick={() => handleDelete(record._id)}>Delete</Button>
                 </div>
             ),
+            width: 150,
         },
     ];
-    
-    if (loading) {
-        return <div>Loading...</div>;
-    }
 
     return (
-        <div style={{ padding: '20px', background: '#f0f2f5', minHeight: '100vh' }}>
-            <Link to="/" style={{ marginBottom: '20px', display: 'inline-block', color: '#1890ff' }}>
-                <ArrowLeftOutlined /> Back to Dashboard
-            </Link>
-            <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>Products</h1>
-            <Button
-                type="primary"
-                style={{ marginBottom: '20px' }}
-                onClick={() => {
-                    setEditingProduct(null);
-                    setIsModalVisible(true);
-                }}
-            >
-                Add Product
-            </Button>
-            
-            <Modal
-                title={editingProduct ? "Edit Product" : "Add New Product"}
-                open={isModalVisible} // تغییر به `open`
-                onOk={handleAddOrUpdateProduct}
-                onCancel={() => setIsModalVisible(false)}
-                okText={editingProduct ? "Update" : "Add"}
-            >
-                <Form layout="vertical">
-                    <Form.Item label="Name">
-                        <Input
-                            value={productData.name}
-                            onChange={(e) => setProductData({ ...productData, name: e.target.value })}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Description">
-                        <Input.TextArea
-                            value={productData.description}
-                            onChange={(e) => setProductData({ ...productData, description: e.target.value })}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Price">
-                        <Input
-                            type="number"
-                            value={productData.price}
-                            onChange={(e) => setProductData({ ...productData, price: e.target.value })}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Categories">
-                        <Select
-                            mode="multiple"
-                            value={productData.categories}
-                            onChange={(value) => setProductData({ ...productData, categories: value })}
-                        >
-                            {categories.map((category) => (
-                                <Option key={category._id} value={category._id}>{category.catName}</Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item label="Vendor">
-                        <Select
-                            value={productData.vendor}
-                            onChange={(value) => setProductData({ ...productData, vendor: value })}
-                        >
-                            {vendors.map((vendor) => (
-                                <Option key={vendor._id} value={vendor._id}>{vendor.name}</Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item label="Product URL">
-                        <Input
-                            value={productData.productUrl}
-                            onChange={(e) => setProductData({ ...productData, productUrl: e.target.value })}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Image">
-                        <Upload
-                            customRequest={({ file, onSuccess }) => {
-                                setSelectedFile(file);
-                                onSuccess();
-                            }}
-                            showUploadList={false}
-                            onChange={handleFileChange}
-                        >
-                            <Button icon={<UploadOutlined />}>Click to upload</Button>
-                        </Upload>
-                    </Form.Item>
-                </Form>
-            </Modal>
+        <MainLayout selectedKey="products">
+            <div style={{ padding: '20px', background: '#f0f2f5', minHeight: '100vh' }}>
+                
+                <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>Products</h1>
+                <Button
+                    type="primary"
+                    style={{ marginBottom: '20px' }}
+                    onClick={() => {
+                        setEditingProduct(null);
+                        setIsModalVisible(true);
+                    }}
+                >
+                    Add Product
+                </Button>
+                
+                <Modal
+                    title={editingProduct ? "Edit Product" : "Add New Product"}
+                    open={isModalVisible}
+                    onOk={handleAddOrUpdateProduct}
+                    onCancel={() => setIsModalVisible(false)}
+                    okText={editingProduct ? "Update" : "Add"}
+                >
+                    <Form layout="vertical">
+                        <Form.Item label="Name">
+                            <Input
+                                value={productData.name}
+                                onChange={(e) => setProductData({ ...productData, name: e.target.value })}
+                            />
+                        </Form.Item>
+                        <Form.Item label="Description">
+                            <Input.TextArea
+                                value={productData.description}
+                                onChange={(e) => setProductData({ ...productData, description: e.target.value })}
+                            />
+                        </Form.Item>
+                        <Form.Item label="Price">
+                            <Input
+                                type="number"
+                                value={productData.price}
+                                onChange={(e) => setProductData({ ...productData, price: e.target.value })}
+                            />
+                        </Form.Item>
+                        <Form.Item label="Categories">
+                            <Select
+                                mode="multiple"
+                                value={productData.categories}
+                                onChange={(value) => setProductData({ ...productData, categories: value })}
+                            >
+                                {categories.map((category) => (
+                                    <Option key={category._id} value={category._id}>{category.catName}</Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                        <Form.Item label="Vendor">
+                            <Select
+                                value={productData.vendor}
+                                onChange={(value) => setProductData({ ...productData, vendor: value })}
+                            >
+                                {vendors.map((vendor) => (
+                                    <Option key={vendor._id} value={vendor._id}>{vendor.name}</Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                        <Form.Item label="Product URL">
+                            <Input
+                                value={productData.productUrl}
+                                onChange={(e) => setProductData({ ...productData, productUrl: e.target.value })}
+                            />
+                        </Form.Item>
+                        <Form.Item label="Image">
+                            <Upload
+                                customRequest={({ file, onSuccess }) => {
+                                    setSelectedFile(file);
+                                    onSuccess();
+                                }}
+                                showUploadList={false}
+                                onChange={handleFileChange}
+                            >
+                                <Button icon={<UploadOutlined />}>Click to upload</Button>
+                            </Upload>
+                        </Form.Item>
+                    </Form>
+                </Modal>
 
-            <Table
-                dataSource={products}
-                columns={columns}
-                rowKey={(record) => record._id}
-                bordered
-                style={{ backgroundColor: '#fff' }}
-            />
-        </div>
+                <Table
+                    dataSource={products}
+                    columns={columns}
+                    rowKey={(record) => record._id}
+                    bordered
+                    scroll={{ x: 'max-content' }}
+                    style={{ backgroundColor: '#fff', overflowX: 'auto' }}
+                />
+            </div>
+        </MainLayout>
     );
 };
 

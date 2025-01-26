@@ -1,9 +1,8 @@
-// src/pages/Categories.js
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { Table, Button, Input, Form, Modal, message } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+// import { ArrowLeftOutlined } from '@ant-design/icons';
+import MainLayout from '../components/MainLayout';
 
 const Categories = () => {
     const [categories, setCategories] = useState([]);
@@ -74,10 +73,8 @@ const Categories = () => {
     ];
 
     return (
-        <div style={{ padding: '20px', background: '#f0f2f5', minHeight: '100vh' }}>
-            <Link to="/" style={{ marginBottom: '20px', display: 'inline-block', color: '#1890ff' }}>
-                <ArrowLeftOutlined /> Back to Dashboard
-            </Link>
+        <MainLayout>
+            
             <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>Categories</h1>
             <Button
                 type="primary"
@@ -115,7 +112,7 @@ const Categories = () => {
                 bordered
                 style={{ backgroundColor: '#fff' }}
             />
-        </div>
+        </MainLayout>
     );
 };
 

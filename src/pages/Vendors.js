@@ -1,9 +1,8 @@
-// src/pages/Vendors.js
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { Table, Button, Input, Form, Modal, message } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+// import { ArrowLeftOutlined } from '@ant-design/icons';
+import MainLayout from '../components/MainLayout';
 
 const Vendors = () => {
     const [vendors, setVendors] = useState([]);
@@ -63,22 +62,27 @@ const Vendors = () => {
             title: 'Action',
             render: (text, record) => (
                 <div>
-                    <Button type="link" onClick={() => {
-                        setEditingVendor(record);
-                        setVendorData(record);
-                        setIsModalVisible(true);
-                    }}>Edit</Button>
-                    <Button type="link" danger onClick={() => handleDelete(record._id)}>Delete</Button>
+                    <Button
+                        type="link"
+                        onClick={() => {
+                            setEditingVendor(record);
+                            setVendorData(record);
+                            setIsModalVisible(true);
+                        }}
+                    >
+                        Edit
+                    </Button>
+                    <Button type="link" danger onClick={() => handleDelete(record._id)}>
+                        Delete
+                    </Button>
                 </div>
             ),
         },
     ];
 
     return (
-        <div style={{ padding: '20px', background: '#f0f2f5', minHeight: '100vh' }}>
-            <Link to="/" style={{ marginBottom: '20px', display: 'inline-block', color: '#1890ff' }}>
-                <ArrowLeftOutlined /> Back to Dashboard
-            </Link>
+        <MainLayout>
+            
             <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>Vendors</h1>
             <Button
                 type="primary"
@@ -91,25 +95,29 @@ const Vendors = () => {
             >
                 Add Vendor
             </Button>
-            
+
             <Modal
-                title={editingVendor ? "Edit Vendor" : "Add New Vendor"}
+                title={editingVendor ? 'Edit Vendor' : 'Add New Vendor'}
                 visible={isModalVisible}
                 onOk={handleAddOrUpdateVendor}
                 onCancel={() => setIsModalVisible(false)}
-                okText={editingVendor ? "Update" : "Add"}
+                okText={editingVendor ? 'Update' : 'Add'}
             >
                 <Form layout="vertical">
                     <Form.Item label="Vendor Name">
                         <Input
                             value={vendorData.name}
-                            onChange={(e) => setVendorData({ ...vendorData, name: e.target.value })}
+                            onChange={(e) =>
+                                setVendorData({ ...vendorData, name: e.target.value })
+                            }
                         />
                     </Form.Item>
                     <Form.Item label="Website">
                         <Input
                             value={vendorData.website}
-                            onChange={(e) => setVendorData({ ...vendorData, website: e.target.value })}
+                            onChange={(e) =>
+                                setVendorData({ ...vendorData, website: e.target.value })
+                            }
                         />
                     </Form.Item>
                 </Form>
@@ -122,7 +130,7 @@ const Vendors = () => {
                 bordered
                 style={{ backgroundColor: '#fff' }}
             />
-        </div>
+        </MainLayout>
     );
 };
 
